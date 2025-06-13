@@ -1,0 +1,28 @@
+Port 2222
+
+HostKey /home/portfwd/sshd/ssh_host_rsa_key
+HostKey /home/portfwd/sshd/ssh_host_ecdsa_key
+HostKey /home/portfwd/sshd/ssh_host_ed25519_key
+
+LogLevel VERBOSE
+
+PubkeyAuthentication yes
+AuthorizedKeysFile .ssh/authorized_keys
+PasswordAuthentication no
+
+# Disable all the services except local TCP port forwarding
+AllowAgentForwarding no
+AllowTcpForwarding local
+GatewayPorts no
+X11Forwarding no
+PermitTunnel no
+PermitListen none
+PermitOpen none
+PermitTTY no
+ForceCommand echo "This SSH server can only be used for port forwarding"
+
+# Don't look up the remote host name. This usually results in faster connection
+# times
+UseDNS no
+
+PidFile /home/portfwd/sshd/sshd.pid
