@@ -12,7 +12,7 @@ services:
       - ssh-host-keys:/ssh-host-keys
       - ./ssh-client-keys:/ssh-client-keys
     environment:
-      PERMIT_LISTEN: 127.0.0.1:8001 127.0.0.1:8002 10.0.2.2:8003
+      PERMIT_OPEN: 10.0.2.15:8001 10.0.2.15:8002 10.0.2.2:8003
 
 volumes:
   ssh-host-keys: {}

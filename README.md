@@ -11,7 +11,24 @@ Inspired by: https://www.golinuxcloud.com/run-sshd-as-non-root-user-without-sudo
 
 ## Usage
 
-TODO
+The first things you need are **host keys** for the OpenSSH server and an **SSH key pair** for the client to be able to connect. See the usage example of [dmotte/docker-portmap-server](https://github.com/dmotte/docker-portmap-server) for how to get them.
+
+In general, the use of this image is very similar to [dmotte/docker-portmap-server-rootless](https://github.com/dmotte/docker-portmap-server-rootless).
+
+In the `PERMIT_OPEN` **environment variable** you need to specify [the destinations to which port forwarding is permitted](https://man.openbsd.org/sshd_config#PermitOpen), separated by spaces. Example: `10.0.2.15:8001 10.0.2.15:8002 10.0.2.2:8003`
+
+Finally, you can start the server:
+
+```bash
+docker run -it --rm \
+    -v "$PWD/hostkeys:/ssh-host-keys" \
+    -v "$PWD/myclientkey.pub:/ssh-client-keys/myclientkey.pub:ro" \
+    -p2222:2222 \
+    -ePERMIT_OPEN=10.0.2.15:8080 \
+    dmotte/portfwd-server-rootless
+```
+
+See [dmotte/docker-portmap-server](https://github.com/dmotte/docker-portmap-server) for further details on usage; it's very similar to this one.
 
 For a more complex example, refer to the [`docker-compose.yml`](docker-compose.yml) file.
 
